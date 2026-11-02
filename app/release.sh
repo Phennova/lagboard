@@ -1,18 +1,21 @@
 #!/bin/zsh
-# Builds LagBoard.app for Apple Silicon and zips it into dist/ for a GitHub release.
+# Builds LagBoard.app and zips it into dist/ for a GitHub release.
+#   ./release.sh 1.0.1            Apple Silicon
+#   ./release.sh 1.0.1 x86_64     Intel
 set -euo pipefail
 cd "$(dirname "$0")"
 
-VERSION="${1:?usage: release.sh <version>}"
-VERSION="$VERSION" ./build.sh
+VERSION="${1:?usage: release.sh <version> [arm64|x86_64]}"
+ARCH="${2:-arm64}"
+VERSION="$VERSION" ARCH="$ARCH" ./build.sh
 
-APP="${TMPDIR:-/tmp}/lagboard-build/LagBoard.app"  # clean, signed build from build.sh
+APP="${TMPDIR:-/tmp}/lagboard-build-$ARCH/LagBoard.app"  # clean, signed build from build.sh
 codesign --verify --deep --strict "$APP"
 archs=$(lipo -archs "$APP/Contents/MacOS/LagBoard")
-[[ "$archs" == "arm64" ]] || { echo "unexpected architectures: $archs"; exit 1; }
+[[ "$archs" == "$ARCH" ]] || { echo "unexpected architectures: $archs"; exit 1; }
 
 mkdir -p ../dist
-ZIP="../dist/LagBoard-${VERSION}-macOS-arm64.zip"
+ZIP="../dist/LagBoard-${VERSION}-macOS-${ARCH}.zip"
 rm -f "$ZIP"
 ditto -c -k --norsrc --noextattr --keepParent "$APP" "$ZIP"
 echo "Packaged $(cd ../dist && pwd)/$(basename "$ZIP") ($archs)"

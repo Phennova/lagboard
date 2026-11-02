@@ -18,13 +18,17 @@ voice turn robotic and cut out. Your internet is fine.
 - **Two ways in.** A Chrome extension for Google Meet (video + audio), or a virtual
   camera that works in any app (video).
 
-> Requires an Apple Silicon Mac running macOS 14 or later.
+> Requires macOS 14 or later, on Apple Silicon or Intel.
 
 ## Install
 
 ### Download
 
-1. Grab `LagBoard-<version>-macOS-arm64.zip` from the [latest release](../../releases/latest) and unzip it.
+1. Grab the zip for your Mac from the [latest release](../../releases/latest) and unzip it:
+   - **Apple Silicon** (M1 and later): `LagBoard-<version>-macOS-arm64.zip`
+   - **Intel**: `LagBoard-<version>-macOS-x86_64.zip`
+
+   Not sure? Apple menu → **About This Mac**: "Chip" means Apple Silicon, "Processor" means Intel.
 2. Move `LagBoard.app` to Applications.
 3. The app is ad-hoc signed, not notarized, so macOS blocks it the first time. Either:
    - open it, then go to **System Settings → Privacy & Security** and click **Open Anyway**, or
@@ -35,8 +39,10 @@ voice turn robotic and cut out. Your internet is fine.
 ```sh
 git clone https://github.com/Phennova/lagboard.git
 cd lagboard
-./app/build.sh            # → app/LagBoard.app
-./app/release.sh 1.0.1    # optional: → dist/LagBoard-1.0.1-macOS-arm64.zip
+./app/build.sh                     # → app/LagBoard.app (Apple Silicon)
+ARCH=x86_64 ./app/build.sh         # Intel build (into $TMPDIR/lagboard-build-x86_64)
+./app/release.sh 1.0.1             # optional: → dist/LagBoard-1.0.1-macOS-arm64.zip
+./app/release.sh 1.0.1 x86_64      # optional: → dist/LagBoard-1.0.1-macOS-x86_64.zip
 ```
 
 Needs Xcode or the Command Line Tools (Swift 5.9+). No other dependencies.
@@ -141,7 +147,7 @@ may still see it. To be safe, share **a tab** or **a single window** instead.
 app/
   Sources/     Swift app: panel UI, setup flow, WebSocket server, native effects, virtual camera
   Resources/   AppIcon.icns
-  build.sh     builds app/LagBoard.app (arm64)
+  build.sh     builds LagBoard.app (ARCH=arm64 default, or x86_64)
   release.sh   builds + zips a release into dist/
 extension/     Chrome extension (Manifest V3)
 design/        app icon concepts + generator (make_icons.py); the app uses b-glitched-wifi

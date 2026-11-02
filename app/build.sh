@@ -1,19 +1,24 @@
 #!/bin/zsh
 # Builds LagBoard.app next to this script.
 #
+#   ./build.sh                 Apple Silicon (arm64)
+#   ARCH=x86_64 ./build.sh     Intel
+#
 # The app is assembled and signed in a temp folder first: iCloud-synced folders (like
 # Desktop/Documents) attach Finder metadata to bundles, which breaks code signing.
 set -euo pipefail
 cd "$(dirname "$0")"
 
 VERSION="${VERSION:-1.0.1}"
-STAGE="${TMPDIR:-/tmp}/lagboard-build"
+ARCH="${ARCH:-arm64}"
+[[ "$ARCH" == "arm64" || "$ARCH" == "x86_64" ]] || { echo "ARCH must be arm64 or x86_64"; exit 1; }
+STAGE="${TMPDIR:-/tmp}/lagboard-build-$ARCH"
 APP="$STAGE/LagBoard.app"
 rm -rf "$STAGE"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
 swiftc -O -swift-version 5 \
-  -target arm64-apple-macos14.0 \
+  -target "$ARCH-apple-macos14.0" \
   -framework AppKit -framework SwiftUI -framework Network -framework Carbon -framework AVFoundation -framework CoreMediaIO -framework CoreMedia -framework CoreVideo -framework VideoToolbox \
   Sources/*.swift -o "$APP/Contents/MacOS/LagBoard"
 
@@ -45,7 +50,11 @@ xattr -cr "$APP"
 codesign --force --sign - "$APP"
 codesign --verify --deep --strict "$APP"
 
-# Local copy for running from the project folder.
-rm -rf LagBoard.app
-ditto --norsrc --noextattr "$APP" LagBoard.app
-echo "Built $(pwd)/LagBoard.app (signed copy: $APP)"
+# Local copy for running from the project folder (only for this Mac's own architecture).
+if [[ "$ARCH" == "$(uname -m)" ]]; then
+  rm -rf LagBoard.app
+  ditto --norsrc --noextattr "$APP" LagBoard.app
+  echo "Built $(pwd)/LagBoard.app ($ARCH, signed copy: $APP)"
+else
+  echo "Built $APP ($ARCH)"
+fi
