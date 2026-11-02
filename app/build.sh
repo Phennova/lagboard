@@ -1,10 +1,14 @@
 #!/bin/zsh
 # Builds LagBoard.app next to this script.
+#
+# The app is assembled and signed in a temp folder first: iCloud-synced folders (like
+# Desktop/Documents) attach Finder metadata to bundles, which breaks code signing.
 set -euo pipefail
 cd "$(dirname "$0")"
 
-APP="LagBoard.app"
-rm -rf "$APP"
+STAGE="${TMPDIR:-/tmp}/lagboard-build"
+APP="$STAGE/LagBoard.app"
+rm -rf "$STAGE"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
 swiftc -O -swift-version 5 \
@@ -34,5 +38,11 @@ PLIST
 
 cp -R ../extension "$APP/Contents/Resources/extension"
 
-codesign --force --sign - "$APP" >/dev/null 2>&1 || true
-echo "Built $(pwd)/$APP"
+xattr -cr "$APP"
+codesign --force --sign - "$APP"
+codesign --verify --deep --strict "$APP"
+
+# Local copy for running from the project folder.
+rm -rf LagBoard.app
+ditto --norsrc --noextattr "$APP" LagBoard.app
+echo "Built $(pwd)/LagBoard.app (signed copy: $APP)"
