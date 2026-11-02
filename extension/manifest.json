@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "LagBoard Bridge",
+  "version": "1.0.0",
+  "description": "Applies fake bad-connection effects to your Google Meet camera and mic, controlled by the LagBoard Mac app.",
+  "minimum_chrome_version": "111",
+  "background": { "service_worker": "background.js" },
+  "host_permissions": ["http://127.0.0.1/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://meet.google.com/*"],
+      "js": ["inject.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://meet.google.com/*"],
+      "js": ["bridge.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
