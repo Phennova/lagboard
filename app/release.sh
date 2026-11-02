@@ -3,8 +3,8 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-VERSION="${1:-1.0.0}"
-./build.sh
+VERSION="${1:?usage: release.sh <version>}"
+VERSION="$VERSION" ./build.sh
 
 APP="${TMPDIR:-/tmp}/lagboard-build/LagBoard.app"  # clean, signed build from build.sh
 codesign --verify --deep --strict "$APP"

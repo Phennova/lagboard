@@ -1,3 +1,5 @@
+<p align="center"><img src="design/icons/b-glitched-wifi.png" width="160" alt="LagBoard icon: a glitched Wi-Fi symbol"></p>
+
 # LagBoard
 
 **A soundboard for fake bad-connection effects on video calls.** Tap a pad and your
@@ -34,7 +36,7 @@ voice turn robotic and cut out. Your internet is fine.
 git clone https://github.com/Phennova/lagboard.git
 cd lagboard
 ./app/build.sh            # → app/LagBoard.app
-./app/release.sh 1.0.0    # optional: → dist/LagBoard-1.0.0-macOS-arm64.zip
+./app/release.sh 1.0.1    # optional: → dist/LagBoard-1.0.1-macOS-arm64.zip
 ```
 
 Needs Xcode or the Command Line Tools (Swift 5.9+). No other dependencies.
@@ -138,9 +140,11 @@ may still see it. To be safe, share **a tab** or **a single window** instead.
 ```
 app/
   Sources/     Swift app: panel UI, setup flow, WebSocket server, native effects, virtual camera
+  Resources/   AppIcon.icns
   build.sh     builds app/LagBoard.app (arm64)
   release.sh   builds + zips a release into dist/
 extension/     Chrome extension (Manifest V3)
+design/        app icon concepts + generator (make_icons.py); the app uses b-glitched-wifi
 docs/          screenshots
 ```
 
